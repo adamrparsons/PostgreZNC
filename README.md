@@ -52,7 +52,8 @@ And load it inside your IRC client with
 Check your syslog or journalctl for errors in configuration
 
 ## Copying
-Some of this is directly copied and pasted from a similar module but for mysql, and without any exceptions. I really wanted this to be done as quickly as possible, so I needed to cheat a little
+Some of this is directly copied and pasted from a similar module but for mysql, and without any exceptions. I really wanted this to be done as quickly as possible, so I needed to cheat a little.
+
 You can compare theirs here: https://github.com/buxxi/znc-mysql/blob/master/sql.py
 
 ## Known Issues: 
