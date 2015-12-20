@@ -2,13 +2,13 @@
 # Adam Parsons (me@adamparsons.id.au)
 # 
 # Requires systemd-journal for debugging, I chose this because any sort of debugging or stdout with modpython is 
-# absolutely impossible, this should have taken me an hour to code, but took almost two days because of how 
+# absolutely impossible, this should have taken me an hour to write, but took almost two days because of how 
 # awful znc's modpython is, and its awesome, descriptive error messages such as "Module Aborted"
 # If you don't have or don't want systemd, just remove any line beginning with 'journal.send' and 
 # replace it with "pass" if its the sole statement after an except
 # 
 # If you're new to python, pip, or anything here and don't know what you're doing, as root run (on debian)
-# apt-get install python3-pip znc-dev znc-python build-essential 
+# apt-get install python3-pip znc-dev znc-python build-essential postgresql
 # pip3 install contextlib2 psycopg2
 # After that, edit the database connection details in this file "postgresConnectString()" to reflect yours
 # 
@@ -17,8 +17,13 @@
 # and load it inside your IRC client with "/msg *status loadmod pznc"
 # Check your syslog or journalctl for errors in configuration
 #
-# Some of this is directly copied and pasted from a similar module but for mysql, 
+# Some of this is directly copied and pasted from a similar module but for mysql, and without exceptions
 # you can compare theirs here: https://github.com/buxxi/znc-mysql/blob/master/sql.py
+# 
+# You can also find the schema for the database at the very bottom of this file, manually enter this into a psql shell
+#
+# Known Issues: Duplicate lines often occur, easily sovable though if anyone cares, I didn't write this because
+# I planned on using it, I wrote it to learn how to make a znc modpython module, I don't actually use this.
 
 import znc, psycopg2, re 
 from contextlib2 import closing
@@ -49,12 +54,11 @@ class pznc(znc.Module):
 		return ts
 
 	def postgresConnectString(self):
-		dbpass = "j3U8sVnq%6^4"
+		dbpass = "j3U8sVnq%6^4" ##Not my actual password, nice try
 		connstring = "dbname='pznc' user='adam' host='localhost' password='" + dbpass + "'"
 		return connstring
 
 	def insert(self, code, channel, host, zuser, user_mode, date, target_user, message, network):
-		journal.send("Inserting")
 		connstring = self.postgresConnectString()
 		try:
 			with closing(psycopg2.connect(connstring)) as conn:
@@ -66,8 +70,6 @@ class pznc(znc.Module):
 		except Exception as e:
 			self.PutModule("Could not save {0} to database caused by: {1} {2}".format(code, type(e), str(e)))
 			journal.send(repr(e))
-
-### ----- Untested Below ----- ###
 
 	def resolveTarget(self, target):
 		target = target.s
@@ -138,10 +140,6 @@ class pznc(znc.Module):
 			journal.send(repr(e))
 		return True
 
-
-
-### ------ Even more untested ------ ####
-
 	def OnMode(self, user, channel, mode, argument, added, noChange):
 		mode = chr(mode)
 		code = "MODE"
@@ -194,4 +192,22 @@ class pznc(znc.Module):
 			return True
 		else:
 			return False
+'''
+'''
+Database Schema:
+
+CREATE TABLE chanlog (
+  id SERIAL,
+  code varchar(10) DEFAULT NULL,
+  network varchar(64) DEFAULT NULL,
+  channel varchar(64) DEFAULT NULL,
+  host varchar(128) DEFAULT NULL,
+  zuser varchar(32) DEFAULT NULL,
+  user_mode char(1) DEFAULT NULL,
+  target_user varchar(32) DEFAULT NULL,
+  message text,
+  date timestamp DEFAULT NULL,
+  PRIMARY KEY (id)
+);
+
 '''
