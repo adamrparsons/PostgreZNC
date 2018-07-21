@@ -81,7 +81,7 @@ class pznc(znc.Module):
 
 	def findMode(self, channel, user):
 		realUser = channel.FindNick(user.GetNick())
-		return chr(realUser.GetPermChar())
+		return realUser.GetPermChar()
 
 	def OnTopic(self, user, channel, message):
 		try:
