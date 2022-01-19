@@ -25,7 +25,9 @@
 # Known Issues: Duplicate lines often occur, easily sovable though if anyone cares, I didn't write this because
 # I planned on using it, I wrote it to learn how to make a znc modpython module, I don't actually use this.
 
-import znc, psycopg2, re 
+import znc
+import psycopg2
+import re
 from contextlib2 import closing
 from systemd import journal
 from datetime import datetime
@@ -39,7 +41,7 @@ class pznc(znc.Module):
 		try:
 			self.insert("PART", channel.GetName(), user.GetHost(), user.GetNick(), None, self.timestamp(), None, message, str(self.GetNetwork()))
 		except Exception as e:
-			send.journal(repr(e))
+			journal.send(repr(e))
 		return True	
 	
 	def OnChanMsg(self, user, channel, message):
@@ -54,7 +56,7 @@ class pznc(znc.Module):
 		return ts
 
 	def postgresConnectString(self):
-		dbpass = "j3U8sVnq%6^4" ##Not my actual password, nice try
+		dbpass = "j3U8sVnq%6^4"  # Not my actual password, nice try
 		connstring = "dbname='pznc' user='adam' host='localhost' password='" + dbpass + "'"
 		return connstring
 
@@ -113,7 +115,6 @@ class pznc(znc.Module):
 			journal.send(repr(e))
 		return True
 
-
 	def OnJoin(self, user, channel):
 		try:
 			self.insert("JOIN", channel.GetName(), user.GetHost(), user.GetNick(), None, self.timestamp(), None, None, str(self.GetNetwork()))
@@ -121,13 +122,13 @@ class pznc(znc.Module):
 			journal.send(repr(e))
 		return True
 
-	def OnUserAction (self, target, message):
+	def OnUserAction(self, target, message):
 		(channel, user) = self.resolveTarget(target)
 		if channel == None:
 			return True
 		return self.OnChanAction(user, channel, message)
 
-	def OnUserMsg (self, target, message):
+	def OnUserMsg(self, target, message):
 		(channel, user) = self.resolveTarget(target)
 		if channel == None:
 			return True
