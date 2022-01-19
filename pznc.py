@@ -76,7 +76,7 @@ class pznc(znc.Module):
 	def resolveTarget(self, target):
 		target = target.s
 		channel = self.GetNetwork().FindChan(target)
-		if channel == None:
+		if channel is None:
 			return (None, None)
 		user = self.GetNetwork().GetIRCNick()
 		return (channel, user)
@@ -124,13 +124,13 @@ class pznc(znc.Module):
 
 	def OnUserAction(self, target, message):
 		(channel, user) = self.resolveTarget(target)
-		if channel == None:
+		if channel is None:
 			return True
 		return self.OnChanAction(user, channel, message)
 
 	def OnUserMsg(self, target, message):
 		(channel, user) = self.resolveTarget(target)
-		if channel == None:
+		if channel is None:
 			return True
 		return self.OnChanMsg(user, channel, message)
 
